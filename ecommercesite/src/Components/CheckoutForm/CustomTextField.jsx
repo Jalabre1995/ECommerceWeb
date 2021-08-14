@@ -5,7 +5,7 @@ import { useFormContext, Controller } from 'react-hook-form';
 
 
 
-const FormInput = ({name, label}) => {
+const FormInput = ({name, label, required}) => {
 
     const {control} = useFormContext();
     const isError = false;
