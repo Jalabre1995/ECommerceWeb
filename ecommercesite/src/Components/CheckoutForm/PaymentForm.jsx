@@ -4,7 +4,7 @@ import { Elements, CardElement, ElementsConsumer } from '@stripe/react-stripe-js
 import {loadStripe} from '@stripe/stripe-js';
 import Review from './Review';
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
-const PaymentForm = ({checkoutToken, backStep, onCaptureCheckout, nextStep, shippingData}) => {
+const PaymentForm = ({checkoutToken, shippingData, backStep, onCaptureCheckout,  nextStep}) => {
     const handelSubmit = async (event,elements,stripe) => {
         event.preventDefault();
         if(!stripe || !elements) return;
@@ -30,7 +30,7 @@ const PaymentForm = ({checkoutToken, backStep, onCaptureCheckout, nextStep, ship
                 
                 },
                 fulfillment: {shipping_method: shippingData.shippingOption },
-                paymenty: {
+                payment: {
                     gateway: 'stripe',
                     stripe:{
                         payment_method_id: paymentMethod.id
@@ -45,12 +45,12 @@ const PaymentForm = ({checkoutToken, backStep, onCaptureCheckout, nextStep, ship
     }
     return (
         <>
-        <Review checkutToken = {checkoutToken}/>
+        <Review checkoutToken = {checkoutToken}/>
         <Divider />
         <Typography variant="h6" gutterBottom style={{margin: '20px 0'}}> Payment method</Typography>
         <Elements stripe={stripePromise}>
 
-        </Elements>
+        
             <ElementsConsumer >
                 {({elements,stripe}) => (
                     <form onSubmit={(e) => handelSubmit(e,elements,stripe)}>
@@ -66,6 +66,7 @@ const PaymentForm = ({checkoutToken, backStep, onCaptureCheckout, nextStep, ship
 
                 )}
             </ElementsConsumer>
+            </Elements>
         </>
     )
 }

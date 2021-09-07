@@ -6,15 +6,24 @@ import {commerce} from '../../lib/commerce';
 import {Link} from 'react-router-dom';
 import FormInput from './CustomTextField';
 const AddressForm = ({checkoutToken, test}) => {
+
+        ///states for the many coutnries///
+        const [shippingCountries, setShippingCountries] = useState([]);
+        const [shippingCountry, setShippingCountry] = useState([]);
+        const [shippingSubdivisions,setShippingSubdivisions] = useState([]);
+        const [shippingSubdivision, setShippingSubdivision] = useState('');
+        const [shippingOptions, setShippingOptions] = useState([]);
+        const [shippingOption, setShippingOption] = useState('');
+    
     //make sure we use all the methods in react-hook-form//
     const methods = useForm();
-    ///states for the many coutnries///
-    const [shippingCountries, setShippingCountries] = useState([]);
-    const [shippingCountry, setShippingCountry] = useState([]);
-    const [shippingSubdivisions,setShippingSubdivisions] = useState([]);
-    const [shippingSubdivision, setShippingSubdivision] = useState('');
-    const [shippingOptions, setShippingOptions] = useState([]);
-    const [shippingOption, setShippingOption] = useState('');
+
+    const countries = Object.entries(shippingCountries).map(([code, name]) => ({id: code, label: name}));
+    const subdivisions = Object.entries(shippingSubdivisions).map(([code,name]) => ({id: code, label: name}));
+
+    const options = shippingOptions.map((sO) => ({id: sO.id, label: `${sO.description} - (${sO.price.formatted_with_symbol})` }))
+
+    console.log(shippingOptions)
 
     
 /////AL,BT,etc...//////
@@ -25,15 +34,15 @@ const AddressForm = ({checkoutToken, test}) => {
     }
 
     ///fetch the subdivisions////
-    const fetchSubdivisions = async(countryCode) => {
-        const {subdivisions} = await commerce.services.localeListSubdivisions(countryCode);
+    const fetchSubdivisions = async (countryCode) => {
+         const {subdivisions}  = await commerce.services.localeListSubdivisions(countryCode);
+    
         setShippingSubdivisions(subdivisions);
         setShippingSubdivision(Object.keys(subdivisions)[0]);
-    } 
-
+      }
     ///fetch the shipping options////
-    const fetchShippingOptions = async(checkoutTokenId, country, stateProvince = null) => {
-        const options = await commerce.checkout.getShippingOptions(checkoutTokenId, {country, region: stateProvince});
+    const fetchShippingOptions = async(checkoutTokenId, country, region = null) => {
+        const options = await commerce.checkout.getShippingOptions(checkoutTokenId, {country, region});
         setShippingOptions(options);
         setShippingOption(options[0].id);
     }
@@ -59,18 +68,18 @@ const AddressForm = ({checkoutToken, test}) => {
             <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit((data) => test({...data, shippingCountry,shippingSubdivision, shippingOption}))}>
                 <Grid container spacing={3}>
-                    <FormInput required name='firstName' label='First name'/>
-                    <FormInput required  name='lastName' label='Last name'/>
-                    <FormInput required name='address1' label='Address'/>
-                    <FormInput required name='email' label='Email'/>
-                    <FormInput required name='City' label='City'/>
-                    <FormInput required name='zip' label='Postal code'/>
+                    <FormInput  name='firstName' label='First name'/>
+                    <FormInput   name='lastName' label='Last name'/>
+                    <FormInput  name='address1' label='Address'/>
+                    <FormInput  name='email' label='Email'/>
+                    <FormInput  name='City' label='City'/>
+                    <FormInput  name='zip' label='Postal code'/>
                     <Grid itm xs={12} sm={6}>
                         <InputLabel>Shipping Country</InputLabel>
                         <Select value={shippingCountry} fullWidth onChange={(e) => setShippingCountry(e.target.value)}>
-                            {Object.entries(shippingCountries).map(([code, name]) => ({id: code, label: name})).map((item) => (
-                                 <MenuItem key={item.id} value={item.id}>
-                                 {item.label}
+                            {countries.map((country) =>(
+                                 <MenuItem key={country.id} value={country.id}>
+                                 {country.label}
                              </MenuItem>
 
                             ))}
@@ -80,9 +89,9 @@ const AddressForm = ({checkoutToken, test}) => {
                     <Grid itm xs={12} sm={6}>
                         <InputLabel>Shipping Subdivison</InputLabel>
                         <Select value={shippingSubdivision} fullWidth onChange={(e) => setShippingSubdivision(e.target.value)}>
-                            {Object.entries(shippingSubdivisions).map(([code,name]) => ({id: code, label:name})).map((item) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.label}
+                            {subdivisions.map((subdivision) =>(
+                                <MenuItem key={subdivision.id} value={subdivision.id}>
+                                    {subdivision.label}
                                 </MenuItem>
 
                             ))}
@@ -93,9 +102,9 @@ const AddressForm = ({checkoutToken, test}) => {
                     <Grid itm xs={12} sm={6}>
                         <InputLabel>Shipping Options</InputLabel>
                         <Select value={shippingOption} fullWidth onChange={(e) => setShippingOption(e.target.value)}>
-                            {shippingOptions.map((sO) => ({id: sO.id, label: `${sO.description} - (${sO.price.formatted_with_symbol})`})).map((item) =>(
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.label}
+                            {options.map((option) =>(
+                                <MenuItem key={option.id} value={option.id}>
+                                    {option.label}
                                 </MenuItem>
                             ))}
                             
